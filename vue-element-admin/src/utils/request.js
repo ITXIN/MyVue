@@ -2,11 +2,20 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+// import { MessageBox } from 'element-ui'
+// import { config } from 'shelljs'
 
+var baseUrl = 'https://istudy.group'
+// if (process.env.NODE_ENV === 'development') {
+//   baseUrl = 'http://istudy.group'
+// } else if (process.env.NODE_ENV === 'production') {
+//   baseUrl = 'http://istudy.group'
+// }
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api 的 base_url
-  timeout: 5000 // request timeout
+  // baseURL: config.env.BASE_API, // api 的 base_url
+  baseURL: baseUrl, // api 的 base_url
+  timeout: 1000 // request timeout
 })
 
 // request interceptor
@@ -16,6 +25,8 @@ service.interceptors.request.use(
     if (store.getters.token) {
       // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
       config.headers['X-Token'] = getToken()
+      config.headers['Accept'] = 'application/json'
+      config.headers['Content-Type'] = 'application/json'
     }
     return config
   },
@@ -28,23 +39,25 @@ service.interceptors.request.use(
 
 // response interceptor
 service.interceptors.response.use(
-  response => response,
+  // response => response.data,
   /**
    * 下面的注释为通过在response里，自定义code来标示请求状态
    * 当code返回如下情况则说明权限有问题，登出并返回到登录页
    * 如想通过 xmlhttprequest 来状态码标识 逻辑可写在下面error中
    * 以下代码均为样例，请结合自生需求加以修改，若不需要，则可删除
    */
-  // response => {
-  //   const res = response.data
-  //   if (res.code !== 20000) {
+  response => {
+    const res = response.data
+    console.log('--request response status:', res.status + ', msg:' + res.desc + ', body:' + JSON.stringify(res.body)) // for debug
+    return res
+  //   if (res.status !== '000000') {
   //     Message({
   //       message: res.message,
   //       type: 'error',
   //       duration: 5 * 1000
   //     })
   //     // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
-  //     if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+  //     if (res.status === 50008 || res.status === 50012 || res.status === 50014) {
   //       // 请自行在引入 MessageBox
   //       // import { Message, MessageBox } from 'element-ui'
   //       MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
@@ -57,11 +70,13 @@ service.interceptors.response.use(
   //         })
   //       })
   //     }
-  //     return Promise.reject('error')
+  //     return response.data
+  //     // return Promise.reject('error')
   //   } else {
   //     return response.data
   //   }
-  // },
+    // return response.data
+  },
   error => {
     console.log('err' + error) // for debug
     Message({
