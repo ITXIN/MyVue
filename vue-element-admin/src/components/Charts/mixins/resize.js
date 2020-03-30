@@ -1,28 +1,56 @@
 import { debounce } from '@/utils'
 
 export default {
+  data() {
+    return {
+      $_sidebarElm: null,
+      $_resizeHandler: null
+    }
+  },
   mounted() {
-    this.__resizeHandler = debounce(() => {
-      if (this.chart) {
-        this.chart.resize()
-      }
-    }, 100)
-    window.addEventListener('resize', this.__resizeHandler)
+    this.initListener()
+  },
+  activated() {
+    if (!this.$_resizeHandler) {
+      // avoid duplication init
+      this.initListener()
+    }
 
-    const sidebarElm = document.getElementsByClassName('sidebar-container')[0]
-    sidebarElm.addEventListener('transitionend', this.sidebarResizeHandler)
+    // when keep-alive chart activated, auto resize
+    this.resize()
   },
   beforeDestroy() {
-    window.removeEventListener('resize', this.__resizeHandler)
-
-    const sidebarElm = document.getElementsByClassName('sidebar-container')[0]
-    sidebarElm.removeEventListener('transitionend', this.sidebarResizeHandler)
+    this.destroyListener()
+  },
+  deactivated() {
+    this.destroyListener()
   },
   methods: {
-    sidebarResizeHandler(e) {
+    // use $_ for mixins properties
+    // https://vuejs.org/v2/style-guide/index.html#Private-property-names-essential
+    $_sidebarResizeHandler(e) {
       if (e.propertyName === 'width') {
-        this.__resizeHandler()
+        this.$_resizeHandler()
       }
+    },
+    initListener() {
+      this.$_resizeHandler = debounce(() => {
+        this.resize()
+      }, 100)
+      window.addEventListener('resize', this.$_resizeHandler)
+
+      this.$_sidebarElm = document.getElementsByClassName('sidebar-container')[0]
+      this.$_sidebarElm && this.$_sidebarElm.addEventListener('transitionend', this.$_sidebarResizeHandler)
+    },
+    destroyListener() {
+      window.removeEventListener('resize', this.$_resizeHandler)
+      this.$_resizeHandler = null
+
+      this.$_sidebarElm && this.$_sidebarElm.removeEventListener('transitionend', this.$_sidebarResizeHandler)
+    },
+    resize() {
+      const { chart } = this
+      chart && chart.resize()
     }
   }
 }
