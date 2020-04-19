@@ -3,12 +3,12 @@ import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
-const baseURL = 'https://localhost:9090'
+// const baseURL = 'https://localhost:9090'
 // const baseURL = 'https://istudy.group:8843'
 // create an axios instance
 const service = axios.create({
-  // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
-  baseURL: baseURL, // url = base url + request url
+  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  // baseURL: baseURL, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
