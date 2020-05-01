@@ -7,9 +7,9 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            New Visits
+            {{ visits.type }}
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="88388" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -20,9 +20,9 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Messages
+            {{ message.type }}
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="83883" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -33,7 +33,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Purchases
+            {{ purchases.type }}
           </div>
           <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
         </div>
@@ -46,7 +46,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Shoppings
+            {{ shoppings.type }}
           </div>
           <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
         </div>
@@ -57,14 +57,37 @@
 
 <script>
 import CountTo from 'vue-count-to'
-
+import { panelgroupList } from '@/api/remote-search'
 export default {
   components: {
     CountTo
   },
+  data() {
+    return {
+      list: null,
+      visits: Object,
+      message: Object,
+      purchases: Object,
+      shoppings: Object
+    }
+  },
+  created() {
+    this.handlePanelGroupList()
+  },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    handlePanelGroupList() {
+      panelgroupList().then(response => {
+        console.log('----panelgroupList', response.body.pgList)
+        // this.list = response.body.items.slice(0, 2)
+        this.list = response.body.pgList
+        this.visits = this.list[0]
+        this.message = this.list[1]
+        this.purchases = this.list[2]
+        this.shoppings = this.list[3]
+      })
     }
   }
 }

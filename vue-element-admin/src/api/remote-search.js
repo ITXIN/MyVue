@@ -11,8 +11,17 @@ export function searchUser(name) {
 export function transactionList(query) {
   console.log('---trans', query)
   return request({
-    url: '/transaction/list',
-    method: 'get',
+    url: '/dashboard/transaction/list',
+    method: 'post',
+    params: { query: query }
+  })
+}
+
+export function panelgroupList(query) {
+  console.log('---panelgroup', query)
+  return request({
+    url: '/dashboard/panelgroup/list',
+    method: 'post',
     params: { query: query }
   })
 }
